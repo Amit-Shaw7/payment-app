@@ -3,13 +3,17 @@ import db from "@repo/db/client";
 
 const app = express();
 
-app.post("/hdfcWebhook", async (req, res) => {
+app.use(express.json());
+
+app.post("/hdfcWebhook", async (req, res) => { 
+  
   //TODO: Add zod validation here?
   const paymentInformation = {
     token: req.body.token,
-    userId: req.body.user_identifier,
+    userId: Number(req.body.user_identifier),
     amount: req.body.amount,
   };
+  console.log(paymentInformation);
   // Update balance in db, add txn
 
   try {
