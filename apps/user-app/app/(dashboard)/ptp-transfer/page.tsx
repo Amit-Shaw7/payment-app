@@ -11,31 +11,44 @@ const PTPTRansfer = () => {
   const [receiver, setReceiver] = React.useState("");
   const [error, setError] = React.useState("");
 
-  const transferMoney = () => {
-    const res: any = transferMOney(receiver, amount || 0);
-    console.log(res);
+  const reset = () => {
+    setAmount(0);
+    setReceiver("");
+  };
+
+  const transferMoney = async () => {
+    const res: any = await transferMOney(receiver, amount || 0);
     setError(res.message);
+    console.log(res);
+
+    // reset();
   };
   return (
-    <div className="h-full w-full flex items-center justify-center">
+    <div className="h-screen w-screen flex items-center  justify-center">
       <Card title="People to people transfer">
-        <h1>People to people transfer</h1>
-        <TextInput
-          label={"Receiver"}
-          placeholder={"Receiver"}
-          onChange={(value) => {
-            setReceiver(value);
-          }}
-        />
-        <TextInput
-          label={"Amount"}
-          placeholder={"Amount"}
-          onChange={(value) => {
-            setAmount(Number(value)*100);
-          }}
-        />
-        {error && <p className="text-red-500">{error}</p>}
-        <Button onClick={transferMoney}>Transfer</Button>
+        <div className="">
+          <div className="flex flex-col justify-between h-full w-[300px]">
+            <TextInput
+              label={"Receiver"}
+              placeholder={"Receiver"}
+              onChange={(value) => {
+                setReceiver(value);
+              }}
+            />
+            <TextInput
+              label={"Amount"}
+              placeholder={"Amount"}
+              onChange={(value) => {
+                setAmount(Number(value) * 100);
+              }}
+            />
+          </div>
+
+          <div className="mt-5">
+            {error && <p className="text-red-500">{error}</p>}
+            <Button onClick={transferMoney}>Transfer</Button>
+          </div>
+        </div>
       </Card>
     </div>
   );

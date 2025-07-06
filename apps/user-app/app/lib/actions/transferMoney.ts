@@ -12,48 +12,55 @@ export const transferMOney = async (
   const userId = session?.user?.id;
   const userPhone = session?.user?.phone;
 
-  if (!userId)
+  if (!userId) {
     return {
       message: "You are not logged in",
     };
+  }
 
-  if (Number(reciever) === Number(userPhone))
+  if (Number(reciever) === Number(userPhone)) {
     return {
       message: "You cannot send money to yourself",
     };
-
-  if (amount <= 0)
+  }
+  if (amount <= 0) {
     return {
       message: "Transfer Amount must be greater than 0",
     };
-
+  }
   const recieverExists = await db.user.findFirst({
     where: {
       number: String(reciever),
     },
   });
 
-  if (!recieverExists)
+  if (!recieverExists) {
     return {
       message: "Reciever does not exist",
     };
-
-  const balance = await db.balance.findFirst({
-    where: {
-      userId: Number(userId),
-    },
-  });
-
-  if (balance?.amount && balance?.amount < amount)
-    return {
-      message: "Insufficient balance",
-    };
-
-  console.log(amount, reciever, userId);
+  }
 
   try {
-    await db.$transaction([
-      db.balance.update({
+    await db.$transaction(async (txn) => {
+      const sender = await db.balance.findUnique({
+        where: {
+          userId: Number(userId),
+        },
+      });
+
+      console.log("before", sender.amount);
+
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      console.log("after", sender.amount);
+
+      if (sender?.amount && sender?.amount < amount) {
+        return {
+          message: "Insufficient balance",
+        };
+      }
+
+      await txn.balance.update({
         where: {
           userId: Number(userId),
         },
@@ -63,9 +70,9 @@ export const transferMOney = async (
             decrement: amount,
           },
         },
-      }),
+      });
 
-      db.balance.update({
+      await txn.balance.update({
         where: {
           userId: recieverExists.id,
         },
@@ -75,22 +82,13 @@ export const transferMOney = async (
             increment: amount,
           },
         },
-      }),
+      });
+    });
 
-      db.onRampTransaction.create({
-        data: {
-          amount: amount,
-          status: "Success",
-          userId: Number(userId),
-          startTime: new Date(),
-          token: Math.random().toString(36).substring(2, 15),
-          provider: "HDFC Bank",
-        },
-      }),
-    ]);
+    let users: any = [];
+    return { message: "Transfer successful", users };
   } catch (error) {
     console.log(error);
-
     return error;
   }
 };
