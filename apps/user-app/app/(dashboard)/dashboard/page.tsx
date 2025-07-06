@@ -1,3 +1,3 @@
 export default function Dashboard() {
-  return <div>Dashboard Page (or transfer/txn page) testing commit</div>;
+  return <div>Dashboard Page (or transfer/txn page)</div>;
 }
