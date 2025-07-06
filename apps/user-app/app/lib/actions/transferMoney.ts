@@ -1,5 +1,4 @@
 "use server";
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth";
 import db from "@repo/db/client";
